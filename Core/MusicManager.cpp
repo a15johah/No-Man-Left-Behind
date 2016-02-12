@@ -18,10 +18,11 @@ MusicManager::~MusicManager(){
 }
 
 bool MusicManager::initialize(sf::RenderWindow* window){
+	idTracker = 0;
+
 	Clock cl;
 	// Loading sounds
 	if (archiveMusic()){
-		idTracker = 0;
 		logger::timing("Music loaded in " + to_string(cl.getElapsedTime().asSeconds()) + " seconds");
 		return true;
 	}
@@ -37,9 +38,7 @@ bool MusicManager::finalize(sf::RenderWindow* window){
 		delete f;
 	}
 	musicArchived.clear();
-
 	musicBoard.clear();
-
 	channels.clear();
 
 	return true;
@@ -49,7 +48,7 @@ void MusicManager::tick(sf::RenderWindow* window, const sf::Time& time, const fl
 	// GarbageDAY!
 	for (auto &id : channels){
 		if (id.second.music->getStatus() == sf::Music::Stopped){
-			channels.erase(id.first);	// Not sure if this is legit
+			channels.erase(id.first);
 		}
 	}
 	// check channels mm::Music for special treatments
@@ -114,11 +113,8 @@ unsigned long MusicManager::play(const std::string& category, const std::string&
 		else{
 			localMusic.duration = localMusic.music->getDuration();
 		}
-		
-
-		localMusic.music->play();
-
 		channels[id] = localMusic;
+		localMusic.music->play();
 
 		return id;
 	}
@@ -129,11 +125,13 @@ void MusicManager::stop(const unsigned long& id, const sf::Time& time, const boo
 		return;
 	}
 
+	mm::Music m = channels[id];
+
 	if (force){
-		channels[id].music->stop();
+		m.music->stop();
 	}
 	else{
-		channels[id].duration = time;
+		m.duration = time - m.start + FADE_DURATION;
 	}
 }
 
@@ -151,14 +149,19 @@ bool MusicManager::archiveMusicFromDir(File& dir){
 	for (File file : dir.listFiles()){
 		if (file.isDirectory()){
 			success = !archiveMusicFromDir(file) ? false : success;
+			continue;
 		}
+
+		if (!Music().openFromFile(file.path())){
+			logger::warning("Skipping music: " + file.parent().name() + "\\" + file.name());
+			continue;
+		}
+
 		// Adding music to the archive
-		File* localFile = new File(); *localFile = file;
+		File* localFile = new File(file.path());
 
 		musicBoard[file.parent().name()][file.nameNoExtension()] = localFile;
 		musicArchived.insert(localFile);
-
-		logger::info("Music " + file.parent().name() + "." + file.nameNoExtension() + " loaded.");
 	}
 	// All music archived
 	return success;

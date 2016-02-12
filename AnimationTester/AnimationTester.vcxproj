@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7C98DE89-45CF-4A6D-BBDE-FFCE0EE24B8A}</ProjectGuid>
-    <RootNamespace>Game</RootNamespace>
+    <ProjectGuid>{6D190762-0B9F-4437-A400-2AAC469B022A}</ProjectGuid>
+    <RootNamespace>AnimationTester</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -48,8 +48,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-network-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\INCLUDE\SFML\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-main-d.lib;sfml-graphics-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-network-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -65,34 +65,16 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-audio.lib;sfml-network.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\INCLUDE\SFML\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-main.lib;sfml-graphics.lib;sfml-window.lib;sfml-audio.lib;sfml-network.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Core\Injured.h" />
-    <ClInclude Include="..\Core\Inventory.h" />
-    <ClInclude Include="..\Core\Item.h" />
-    <ClInclude Include="..\Core\ItemStack.h" />
-    <ClInclude Include="..\Core\JournalManager.h" />
-    <ClInclude Include="..\Core\Level.h" />
-    <ClInclude Include="..\Core\LevelManager.h" />
-    <ClInclude Include="Controller.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="Player.h" />
+    <ClCompile Include="AnimationTester.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Core\Injured.cpp" />
-    <ClCompile Include="..\Core\Inventory.cpp" />
-    <ClCompile Include="..\Core\Item.cpp" />
-    <ClCompile Include="..\Core\ItemStack.cpp" />
-    <ClCompile Include="..\Core\JournalManager.cpp" />
-    <ClCompile Include="..\Core\Level.cpp" />
-    <ClCompile Include="..\Core\LevelManager.cpp" />
-    <ClCompile Include="Controller.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClInclude Include="AnimationTester.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
