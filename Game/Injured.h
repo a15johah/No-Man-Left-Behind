@@ -4,6 +4,7 @@
 #include <map>
 
 #include "Collidable.h"
+#include "Drawable.h"
 #include "Item.h"
 
 static enum Injure{
@@ -14,7 +15,7 @@ static enum Injure{
 	HEALED = 4
 };
 
-class Injured : public Collidable{
+class Injured : public drawable::Drawable{	// Should be Collidable
 public:
 	Injured();
 	~Injured();

@@ -37,8 +37,13 @@ bool Inventory::put(ItemStack* is){
 }
 
 bool Inventory::take(ItemStack* is){
-	// Ska is tas ur slots?
-	return has(is);
+	for (auto &itemStack : slots){
+		if (is->item.type == itemStack.second->item.type){
+			slots.erase(itemStack.first);
+			return true;
+		}
+	}
+	return false;
 }
 
 ItemStack* Inventory::take(unsigned char slot){
