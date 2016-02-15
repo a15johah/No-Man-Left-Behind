@@ -1,9 +1,7 @@
 #include "Inventory.h"
 
-static unsigned char INVENTORY_LIMIT = 255;	// arbiträr! Bör inte ligga här?
-
 Inventory::Inventory(){
-
+	inventoryLimit = 255;
 }
 
 Inventory::~Inventory(){
@@ -14,21 +12,58 @@ void Inventory::clear(){
 	slots.clear();
 }
 
-bool Inventory::put(ItemStack* is, unsigned char slot){
+void Inventory::setLimit(const unsigned char limit){
+	inventoryLimit = limit;
+}
+
+unsigned char Inventory::getLimit(){
+	return inventoryLimit;
+}
+
+bool Inventory::put(ItemStack is, unsigned char slot){
 	if (slots.count(slot) == 0){
+
 		slots[slot] = is;
 		return true;
 	}
-	else{
-		logger::warning("Item could not be placed, slot " + std::to_string(slot) + " already occupied");
-		return false;
+
+	if (slots[slot].item.type == is.item.type){
+
+		unsigned char value = slots[slot].count + is.count;
+
+		if (value < 0){
+
+			logger::warning("Don't have that many items in the stack");
+			return false;
+		}
+
+		slots[slot].count = value;
+		return true;
 	}
+	logger::warning("Item could not be placed, slot " + std::to_string(slot) + " already occupied");
+	return false;
 }
 
-bool Inventory::put(ItemStack* is){
-	for (unsigned char i = 0; i < INVENTORY_LIMIT; i++){
+bool Inventory::put(ItemStack is){
+	for (unsigned char i = 0; i < inventoryLimit; i++){
+
 		if (slots.count(i) == 0){
+
 			slots[i] = is;
+			return true;
+		}
+
+		if (slots[i].item.type == is.item.type){
+
+			unsigned char value = slots[i].count + is.count;
+
+			if (value < 0){
+
+				logger::warning("Don't have that many items in the stack");
+				return false;
+			}
+
+			slots[i].count = value;
 			return true;
 		}
 	}
@@ -36,9 +71,10 @@ bool Inventory::put(ItemStack* is){
 	return false;
 }
 
-bool Inventory::take(ItemStack* is){
+bool Inventory::take(ItemStack is){
 	for (auto &itemStack : slots){
-		if (is->item.type == itemStack.second->item.type){
+		if (is.item.type == itemStack.second.item.type){
+
 			slots.erase(itemStack.first);
 			return true;
 		}
@@ -46,13 +82,14 @@ bool Inventory::take(ItemStack* is){
 	return false;
 }
 
-ItemStack* Inventory::take(unsigned char slot){
+ItemStack Inventory::take(unsigned char slot){
 	return slots[slot];
 }
 
-bool Inventory::has(ItemStack* is){
+bool Inventory::has(ItemStack is){
 	for (auto &itemStack : slots){
-		if (is->item.type == itemStack.second->item.type){
+
+		if (is.item.type == itemStack.second.item.type){
 			return true;
 		}
 	}

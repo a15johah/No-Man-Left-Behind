@@ -10,14 +10,18 @@ public:
 	~Inventory();
 
 	void clear();
+	void setLimit(unsigned char limit);
+	unsigned char getLimit();
 
-	bool put(ItemStack* is, unsigned char slot);
-	bool put(ItemStack* is);
+	bool put(ItemStack is, unsigned char slot);
+	bool put(ItemStack is);
 
-	bool take(ItemStack* is);
-	ItemStack* take(unsigned char slot);
+	bool take(ItemStack is);
+	ItemStack take(unsigned char slot);
 
-	bool has(ItemStack* is);
+	bool has(ItemStack is);
 private:
-	std::map<unsigned char, ItemStack*> slots;
+	unsigned char inventoryLimit;
+
+	std::map<unsigned char, ItemStack> slots;
 };
