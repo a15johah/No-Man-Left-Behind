@@ -10,5 +10,7 @@ public:
 
 	Item item;
 
-	unsigned char count;
+	unsigned char amount;
+
+	unsigned char stackLimit = 128;	// TODO: Centralize default?
 };

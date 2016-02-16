@@ -1,7 +1,7 @@
 #include "Inventory.h"
 
 Inventory::Inventory(){
-	inventoryLimit = 255;
+	inventoryLimit = 255;	// TODO: Centralize?
 }
 
 Inventory::~Inventory(){
@@ -20,65 +20,52 @@ unsigned char Inventory::getLimit(){
 	return inventoryLimit;
 }
 
-bool Inventory::put(ItemStack is, unsigned char slot){
+unsigned char Inventory::put(ItemStack is, unsigned char slot){
 	if (slots.count(slot) == 0){
 
 		slots[slot] = is;
-		return true;
+		return 0;
 	}
 
-	if (slots[slot].item.type == is.item.type){
+	if (compareItemStackType(slots[slot], is)){
 
-		unsigned char value = slots[slot].count + is.count;
+		is.amount = combineItemStacks(slots[slot], is);
 
-		if (value < 0){
-
-			logger::warning("Don't have that many items in the stack");
-			return false;
-		}
-
-		slots[slot].count = value;
-		return true;
+		return is.amount;
 	}
 	logger::warning("Item could not be placed, slot " + std::to_string(slot) + " already occupied");
-	return false;
+	return is.amount;
 }
 
-bool Inventory::put(ItemStack is){
+unsigned char Inventory::put(ItemStack is){
 	for (unsigned char i = 0; i < inventoryLimit; i++){
 
-		if (slots.count(i) == 0){
+		if (slots.count(i) == 0 ){
 
 			slots[i] = is;
-			return true;
+			return 0;
 		}
 
-		if (slots[i].item.type == is.item.type){
+		if (compareItemStackType(slots[i], is)){
 
-			unsigned char value = slots[i].count + is.count;
+			is.amount = combineItemStacks(slots[i], is);
 
-			if (value < 0){
-
-				logger::warning("Don't have that many items in the stack");
-				return false;
-			}
-
-			slots[i].count = value;
-			return true;
+			return is.amount;
 		}
 	}
 	logger::warning("Item could not be placed, inventory is full");
-	return false;
+	return is.amount;
 }
 
 bool Inventory::take(ItemStack is){
 	for (auto &itemStack : slots){
-		if (is.item.type == itemStack.second.item.type){
+		if (compareItemStacks(is, itemStack.second)){
 
 			slots.erase(itemStack.first);
 			return true;
 		}
 	}
+	logger::warning("Stack not found");
 	return false;
 }
 
@@ -87,11 +74,34 @@ ItemStack Inventory::take(unsigned char slot){
 }
 
 bool Inventory::has(ItemStack is){
+	bool haveIs = false;
+
 	for (auto &itemStack : slots){
 
-		if (is.item.type == itemStack.second.item.type){
-			return true;
+		if (compareItemStacks(is, itemStack.second)){
+			haveIs = true;
 		}
 	}
-	return false;
+	return haveIs;
+}
+// Help functions
+static bool compareItemStacks(const ItemStack& is1, const ItemStack is2){
+	return (is1.item.type == is2.item.type && is1.amount == is2.amount);
+}
+
+static bool compareItemStackType(const ItemStack& is1, const ItemStack is2){
+	return (is1.item.type == is2.item.type);
+}
+
+static unsigned char combineItemStacks(ItemStack& local, ItemStack& given){
+	unsigned char value = local.amount + given.amount;
+	// check if value is greater than the local stack limit
+	if (value > local.stackLimit){
+		local.amount = local.stackLimit;
+		return value - local.stackLimit;
+	}
+	else{
+		local.amount = value;
+		return 0;
+	}
 }

@@ -13,8 +13,8 @@ public:
 	void setLimit(unsigned char limit);
 	unsigned char getLimit();
 
-	bool put(ItemStack is, unsigned char slot);
-	bool put(ItemStack is);
+	unsigned char put(ItemStack is, unsigned char slot);
+	unsigned char put(ItemStack is);
 
 	bool take(ItemStack is);
 	ItemStack take(unsigned char slot);
