@@ -13,4 +13,5 @@ public:
 	unsigned char amount;
 
 	unsigned char stackLimit = 128;	// TODO: Centralize default?
+
 };

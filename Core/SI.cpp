@@ -1,15 +1,15 @@
 #include "SI.h"
 
-namespace si {
+namespace si{
 	SoundManager* soundManager;
 	MusicManager* musicManager;
 
-	bool initalize(SoundManager*& sm, MusicManager*& mm) {
+	bool initalize(SoundManager*& sm, MusicManager*& mm){
 		soundManager = sm;
 		musicManager = mm;
 
 		return true;
-	}
+}
 
 	bool finalize() {
 		return true;

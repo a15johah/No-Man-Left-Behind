@@ -73,7 +73,7 @@ std::vector<ItemStack>& Inventory::setLimit(const unsigned char limit){
 	std::vector<ItemStack> leftovers;
 	for (unsigned char i = 0; i < inventoryLimit; i++) {
 		if (old[i].amount > 0) {
-			leftovers.push_back = old[i];
+			leftovers.push_back(old[i]);
 		}
 	}
 	// remeber the new inventory limit
