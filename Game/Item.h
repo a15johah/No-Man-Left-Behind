@@ -1,6 +1,6 @@
 #pragma once
 
-enum Resource{
+enum Resource {
 	PENICILLIN,
 	FORCEPS,
 	ALCOHOL,
@@ -10,8 +10,10 @@ enum Resource{
 	GAUZE
 };
 
-class Item{
+class Item {
 public:
 	Item();
 	~Item();
+
+	Resource type;
 };
