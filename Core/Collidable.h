@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Entity.h"
+#include "Drawable.h"
 
-class Collidable : public Entity{
+class Collidable : public drawable::Drawable{
 public:
 	Collidable();
 	~Collidable();
 
-	bool collideWith(const Collidable* c);
+	bool collideWith(Collidable* c, const sf::Time& time);
 
 	Vector offsett;
 	Vector size;

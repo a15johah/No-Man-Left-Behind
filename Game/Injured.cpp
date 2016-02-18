@@ -13,13 +13,13 @@ const Injure Injured::nextStage(const Injure& current) {
 	case DEAD:
 		return DEAD;
 		break;
-	case GRAVE:
-		return SEVERE;
+	case CRITICAL:
+		return SERIOUS;
 		break;
-	case SEVERE:
-		return LIGHT;
+	case SERIOUS:
+		return FAIR;
 		break;
-	case LIGHT:
+	case FAIR:
 		return HEALED;
 		break;
 	case HEALED:
@@ -34,17 +34,17 @@ const Injure Injured::previusStage(const Injure& current) {
 	case DEAD:
 		return DEAD;
 		break;
-	case GRAVE:
+	case CRITICAL:
 		return DEAD;
 		break;
-	case SEVERE:
-		return GRAVE;
+	case SERIOUS:
+		return CRITICAL;
 		break;
-	case LIGHT:
-		return SEVERE;
+	case FAIR:
+		return SERIOUS;
 		break;
 	case HEALED:
-		return LIGHT;
+		return HEALED;
 		break;
 	}
 	return DEAD;
@@ -54,14 +54,14 @@ const Injure Injured::parseInjure(const std::string& s) {
 	if (s == "DEAD") {
 		return DEAD;
 	}
-	else if (s == "GRAVE") {
-		return GRAVE;
+	else if (s == "CRITICAL") {
+		return CRITICAL;
 	}
-	else if (s == "SEVERE") {
-		return SEVERE;
+	else if (s == "SERIOUS") {
+		return SERIOUS;
 	}
-	else if (s == "LIGHT") {
-		return LIGHT;
+	else if (s == "FAIR") {
+		return FAIR;
 	}
 	else if (s == "HEALED") {
 		return HEALED;
@@ -73,14 +73,14 @@ const std::string Injured::injureToString(const Injure& Injure) {
 	if (Injure == DEAD) {
 		return "DEAD";
 	}
-	else if (Injure == GRAVE) {
-		return "GRAVE";
+	else if (Injure == CRITICAL) {
+		return "CRITICAL";
 	}
-	else if (Injure == SEVERE) {
-		return "SEVERE";
+	else if (Injure == SERIOUS) {
+		return "SERIOUS";
 	}
-	else if (Injure == LIGHT) {
-		return "LIGHT";
+	else if (Injure == FAIR) {
+		return "FAIR";
 	}
 	else if (Injure == HEALED) {
 		return "HEALED";

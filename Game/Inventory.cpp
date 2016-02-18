@@ -41,7 +41,7 @@ void Inventory::clear(){
 }
 
 std::vector<ItemStack>& Inventory::setLimit(const unsigned char limit){
-		std::map<unsigned char, ItemStack> old = slots;
+	std::map<unsigned char, ItemStack> old = slots;
 	
 	slots.clear();	// Reset the slots for new size
 	for (unsigned char i = 0; i < limit; i++) {
@@ -76,7 +76,7 @@ std::vector<ItemStack>& Inventory::setLimit(const unsigned char limit){
 			leftovers.push_back(old[i]);
 		}
 	}
-	// remeber the new inventory limit
+	// set the new inventory limit
 	inventoryLimit = limit;
 
 	return leftovers;

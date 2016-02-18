@@ -9,13 +9,13 @@
 
 enum Injure {
 	DEAD = 0,
-	GRAVE = 1,
-	SEVERE = 2,
-	LIGHT = 3,
+	CRITICAL = 1,
+	SERIOUS = 2,
+	FAIR = 3,
 	HEALED = 4
 };
 
-class Injured : public drawable::Drawable {	// Should be Collidable
+class Injured : public drawable::Drawable {	// Should be Collidable? Animatable?
 public:
 	Injured();
 	~Injured();
