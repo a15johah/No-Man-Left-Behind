@@ -44,9 +44,9 @@ void Editor::run(){
 	manager = new Manager();
 	manager->initialize(window);
 	logger::timing("Manager initialized in " + std::to_string(fg.getElapsedTime().asSeconds()) + " seconds.");
-	world = new World();
-	file = File().child("world.txt");
-	world->load(file, manager);
+	world = new World(manager);
+	file = c::worldDir.child("world.txt");
+	world->load(file);
 	world->background = manager->spriteManager->getBackground(world->backgroundName);
 
 	vector<string> cs = manager->spriteManager->categories();
@@ -152,7 +152,9 @@ void Editor::run(){
 	backgroundM->items.push_back(backgroundMenu);
 	manager->menuManager->menus["background"] = backgroundM;
 
-	window->setFramerateLimit(60);
+	gi::smoothCamera = true;
+	gi::cameraSmoothness = 25.0f;
+
 	while (gi::startOfFrame()){
 		if (manager->inputManager->isPressed(sf::Keyboard::Key::Z)){
 			gi::zoom(gi::cameraZ + 1.0f * gi::cameraZ * world->dt());
@@ -165,6 +167,8 @@ void Editor::run(){
 		manager->tick(window, world->time(), world->dt());
 
 		window->clear();
+
+		gi::camera(world->dt());
 
 		world->render();
 
@@ -212,6 +216,11 @@ const void Editor::keyboardListener(KeyboardEvent& event){
 				target->drawable->scale *= (5.0f / 6.0f);
 			}
 			break;
+		case Keyboard::C:
+			if(event.first()){
+				gi::collisionBoxes = !gi::collisionBoxes;
+			}
+			break;
 		}
 	}
 }
@@ -237,6 +246,15 @@ const void Editor::mouseButtonListener(MouseButtonEvent& event){
 	case Mouse::Button::Right:
 		dragging = event.pressed();
 		break;
+	case Mouse::Button::Middle:
+		if(event.pressed() && target != NULL){
+			*selectedString = target->drawable->reference;
+			if(selectedString->length() > 0){
+				spriteMenu->title = *selectedString;
+				spriteMenu->sprite = manager->spriteManager->getSprite(*selectedString);
+			}
+		}
+		break;
 	case Mouse::Button::Left:
 		targeting = target != NULL && event.pressed();
 
@@ -261,7 +279,7 @@ const void Editor::mouseButtonListener(MouseButtonEvent& event){
 				}
 				targeting = true;
 				d->highlight = true;
-				target = new Target(d, selectedLayer, s->getGlobalBounds().width / 2 * gi::dx(), s->getGlobalBounds().height / 2 * gi::dy());
+				target = new Target(d, selectedLayer, s->getLocalBounds().width * gi::dx() / 2, s->getLocalBounds().height * gi::dy() / 2);
 				mouseMoveListener(MouseMoveEvent(event.x(), event.y(), 0, 0));
 			}
 		}
@@ -274,8 +292,8 @@ const void Editor::mouseMoveListener(MouseMoveEvent& event){
 		return;
 	}
 	if (dragging){
-		gi::cameraX -= event.dx() / gi::dx();
-		gi::cameraY -= event.dy() / gi::dy();
+		gi::cameraTargetX -= event.dx() / gi::dx();
+		gi::cameraTargetY -= event.dy() / gi::dy();
 	}
 	if (!targeting){
 		Target* nt;
@@ -386,6 +404,7 @@ const void Editor::mouseMoveListener(MouseMoveEvent& event){
 					}
 				}
 			}
+			world->orderDrawables(target->layer);
 		}
 	}
 }

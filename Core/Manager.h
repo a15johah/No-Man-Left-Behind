@@ -1,11 +1,13 @@
 #pragma once
 
 #include "AnimationManager.h"
+#include "CollisionManager.h"
 #include "SpriteManager.h"
 #include "InputManager.h"
 #include "MusicManager.h"
 #include "SoundManager.h"
 #include "MenuManager.h"
+#include "SI.h"
 
 class Manager{
 public:
@@ -15,6 +17,7 @@ public:
 	SpriteManager* spriteManager;
 	MenuManager* menuManager;
 	AnimationManager* animationManager;
+	CollisionManager* collisionManager;
 
 	Manager(){
 		inputManager = new InputManager();
@@ -23,6 +26,7 @@ public:
 		spriteManager = new SpriteManager();
 		menuManager = new MenuManager(inputManager);
 		animationManager = new AnimationManager();
+		collisionManager = new CollisionManager();
 	}
 	~Manager(){
 		delete inputManager;
@@ -31,6 +35,7 @@ public:
 		delete spriteManager;
 		delete menuManager;
 		delete animationManager;
+		delete collisionManager;
 	};
 
 	void initialize(sf::RenderWindow* window){
@@ -40,6 +45,8 @@ public:
 		spriteManager->initialize(window);
 		menuManager->initialize(window);
 		animationManager->initialize(window, spriteManager);
+		collisionManager->initialize(window);
+		si::initalize(soundManager, musicManager);
 	}
 
 	void finalize(sf::RenderWindow* window){
@@ -49,6 +56,8 @@ public:
 		spriteManager->finalize(window);
 		menuManager->finalize(window);
 		animationManager->finalize(window);
+		collisionManager->finalize(window);
+		si::finalize();
 	}
 
 	void tick(sf::RenderWindow* window, const sf::Time& time, const float& dt){
@@ -58,5 +67,6 @@ public:
 		spriteManager->tick(window, time, dt);
 		menuManager->tick(window, time, dt);
 		animationManager->tick(window, time, dt);
+		collisionManager->tick(window, time, dt);
 	}
 };

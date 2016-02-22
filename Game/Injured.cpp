@@ -1,101 +1,30 @@
 #include "Injured.h"
 
-Injured::Injured() {
+Injured::Injured(){
+	
+}
+
+Injured::~Injured(){
 
 }
 
-Injured::~Injured() {
-
+void Injured::initialize(Manager* manager, const std::string& animation, const Injure& injure, const size_t& progress){
+	animatableType = STATES;
+	numStates = 5;
+	apply(manager, animation);
+	Injured::injure = injure;
+	Injured::progress = progress;
+	updateAnimation();
+	cb.shouldCollide = true;
+	cb.renderOffset = 0.9f;
+	cb.offset = Vector(0.2f, 0.3f);
+	cb.size = Vector(0.6f, 0.6f);
 }
 
-const Injure Injured::nextStage(const Injure& current) {
-	switch (current) {
-	case DEAD:
-		return DEAD;
-		break;
-	case CRITICAL:
-		return SERIOUS;
-		break;
-	case SERIOUS:
-		return FAIR;
-		break;
-	case FAIR:
-		return HEALED;
-		break;
-	case HEALED:
-		return HEALED;
-		break;
-	}
-	return DEAD;
+void Injured::updateAnimation(){
+	setNextState(INJURED_STATES - 1 + progress - requirements.at(injure).size());
 }
 
-const Injure Injured::previusStage(const Injure& current) {
-	switch (current) {
-	case DEAD:
-		return DEAD;
-		break;
-	case CRITICAL:
-		return DEAD;
-		break;
-	case SERIOUS:
-		return CRITICAL;
-		break;
-	case FAIR:
-		return SERIOUS;
-		break;
-	case HEALED:
-		return HEALED;
-		break;
-	}
-	return DEAD;
-}
-
-const Injure Injured::parseInjure(const std::string& s) {
-	if (s == "DEAD") {
-		return DEAD;
-	}
-	else if (s == "CRITICAL") {
-		return CRITICAL;
-	}
-	else if (s == "SERIOUS") {
-		return SERIOUS;
-	}
-	else if (s == "FAIR") {
-		return FAIR;
-	}
-	else if (s == "HEALED") {
-		return HEALED;
-	}
-	return DEAD;
-}
-
-const std::string Injured::injureToString(const Injure& Injure) {
-	if (Injure == DEAD) {
-		return "DEAD";
-	}
-	else if (Injure == CRITICAL) {
-		return "CRITICAL";
-	}
-	else if (Injure == SERIOUS) {
-		return "SERIOUS";
-	}
-	else if (Injure == FAIR) {
-		return "FAIR";
-	}
-	else if (Injure == HEALED) {
-		return "HEALED";
-	}
-	return "DEAD";
-}
-
-std::vector<Resource>* Injured::getRequirements(const Injure inj) {
-	return requirements[inj];
-}
-
-void Injured::setRequirements(Injure inj, std::vector<Resource>* req) {
-	requirements[inj] = req;
-}
-
-void Injured::clear() {
-	requirements.clear();
+bool Injured::isHealed(){
+	return progress >= requirements.at(injure).size();
 }

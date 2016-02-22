@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 
+#include "CollisionManager.h"
 #include "Entity.h"
 #include "SFMLI.h"
 
@@ -37,5 +38,13 @@ namespace drawable{
 		~Drawable();
 
 		sf::Sprite* getSprite(const sf::Time& time);
+
+		sf::FloatRect bounds(const sf::Time& time);
+
+		bool collidesWith(Drawable* d, const sf::Time& time, const Vector& position);
+		bool collidesWith(Drawable* d, const sf::Time& time);
+
+		std::string reference = "";
+		CollisionBox cb;
 	};
 }

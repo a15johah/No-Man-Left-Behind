@@ -14,7 +14,7 @@ Drawable::~Drawable(){
 
 sf::Sprite* Drawable::getSprite(const sf::Time& time){
 	Animation* a;
-	if (animations.count(currentAnimation) == 0){
+	if(animations.count(currentAnimation) == 0){
 		a = animations.begin()->second;
 	}
 	else{
@@ -24,7 +24,7 @@ sf::Sprite* Drawable::getSprite(const sf::Time& time){
 	sf::Time maxDuration = sf::milliseconds(a->timing.asMilliseconds() * (a->sprites.size()));
 	size_t index = size_t(floor((a->sprites.size()) * (elapsed / maxDuration)));
 
-	if (index > a->sprites.size() - 1){
+	if(index > a->sprites.size() - 1){
 		currentAnimation = nextAnimation;
 		startTime = time;
 		return getSprite(time);
@@ -38,11 +38,34 @@ sf::Sprite* Drawable::getSprite(const sf::Time& time){
 		);
 	s->scale(1.0f / s->getScale().x, 1.0f / s->getScale().y);
 	s->scale(scale * gi::dx(), scale * gi::dy());
-	if (highlight){
+	if(highlight){
 		s->setColor(sf::Color(255, 255, 255, int(205 + 50 * sin(time.asMilliseconds() / 100.0f))));
 	}
 	else{
 		s->setColor(sf::Color(255, 255, 255, 255));
 	}
 	return s;
+}
+
+sf::FloatRect Drawable::bounds(const sf::Time& time){
+	sf::FloatRect fr = getSprite(time)->getLocalBounds();
+
+	fr.width *= scale;
+	fr.height *= scale;
+	fr.left += fr.width * cb.offset.x + position.x;
+	fr.top += fr.height * cb.offset.y + position.y;
+	fr.width *= cb.size.x;
+	fr.height *= cb.size.y;
+
+	return fr;
+}
+
+bool Drawable::collidesWith(Drawable* d, const sf::Time& time, const Vector& position){
+	sf::FloatRect fr = bounds(time);
+	fr.left += position.x - Drawable::position.x;
+	fr.top += position.y - Drawable::position.y;
+	return cb.shouldCollide && d->cb.shouldCollide && fr.intersects(d->bounds(time));
+}
+bool Drawable::collidesWith(Drawable* d, const sf::Time& time) {
+	return cb.shouldCollide && d->cb.shouldCollide && bounds(time).intersects(d->bounds(time));
 }

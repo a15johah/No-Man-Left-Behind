@@ -7,22 +7,25 @@
 
 class Inventory {
 public:
-	Inventory(const unsigned char limit);
+	Inventory(const unsigned char size);
 	~Inventory();
 
-	void clear();
-	std::vector<ItemStack>& setLimit(unsigned char limit);
-	unsigned char getLimit();
+	std::vector<ItemStack> setSize(unsigned char size);
+	unsigned char getSize() const;
 
 	ItemStack& put(ItemStack& is, unsigned char slot);
 	ItemStack& put(ItemStack& is);
 
-	bool take(ItemStack& is);
+	ItemStack& swap(ItemStack& is, unsigned char slot);
 	ItemStack& take(unsigned char slot);
 
-	bool has(ItemStack& is);
-private:
-	unsigned char inventoryLimit;
+	bool take(ItemStack is);
 
-	std::map<unsigned char, ItemStack> slots;
+	bool has(ItemStack is) const;
+
+	void clear();
+private:
+	unsigned char size;
+
+	ItemStack* content;
 };

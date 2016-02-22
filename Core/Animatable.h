@@ -3,6 +3,11 @@
 #include "Manager.h"
 #include "Drawable.h"
 
+enum AnimatableType{
+	DIRECTIONAL,
+	STATES
+};
+
 class Animatable : public drawable::Drawable{
 public:
 	Animatable();
@@ -10,5 +15,10 @@ public:
 
 	void apply(Manager* m, const std::string& a);
 
-	virtual void tick(const sf::Time& time, const float& dt);
+	void setNextState(const unsigned int& state);
+
+	virtual void move(const float& dt);
+
+	AnimatableType animatableType;
+	unsigned char numStates;
 };

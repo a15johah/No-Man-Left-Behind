@@ -6,6 +6,7 @@
 #include "Drawable.h"
 #include "Constants.h"
 #include "ProgressBar.h"
+#include "MathHelper.h"
 
 namespace gi{
 	static const float TARGET_WIDTH = 1920;
@@ -19,12 +20,21 @@ namespace gi{
 	extern float cameraY;
 	extern float cameraZ;
 
+	extern bool smoothCamera;
+	extern float cameraSmoothness;
+	extern float cameraTargetX;
+	extern float cameraTargetY;
+
 	extern float WIDTH;
 	extern float HEIGHT;
+
+	extern bool collisionBoxes;
 
 	extern sf::Font menuFont;
 
 	void zoom(const float& zoom);
+
+	void camera(const float& dt);
 
 	// Initialize \ Finalize
 	bool initalize(sf::RenderWindow*& rw);
@@ -50,6 +60,8 @@ namespace gi{
 	void draw(Menu* menu, const sf::Time& time);
 
 	void draw(ProgressBar* progressbar, const sf::Time& time);
+
+	void darken(const float& darkness);
 
 	// endOfFrame
 	bool endOfFrame();

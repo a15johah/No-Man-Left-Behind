@@ -1,146 +1,110 @@
 #include "Inventory.h"
 
-/* HELP FUNCTIONS */
-static bool compareItemStacks(const ItemStack& is1, const ItemStack is2) {
-	return (is1.item.type == is2.item.type && is1.amount == is2.amount);
+Inventory::Inventory(const unsigned char size){
+	content = new ItemStack[size];
 }
-
-static bool compareItemStackType(const ItemStack& is1, const ItemStack is2) {
-	return (is1.item.type == is2.item.type);
-}
-
-bool combineItemStacks(ItemStack& local, ItemStack& given) {
-	unsigned char value = local.amount + given.amount;
-	// check if value is greater than the local stack limit
-	if (value > local.stackLimit) {
-		local.amount = local.stackLimit;
-		given.amount = value - local.stackLimit;
-		return false;	//given is not empty (unsuccessfuly combined)
-	}
-	else {
-		local.amount = value;
-		given.amount = 0;
-		return true;	// given is empty (successfuly combined)
-	}
-}
-/* INVENTORY */
-Inventory::Inventory(const unsigned char limit){
-	inventoryLimit = limit;
-
-	for (unsigned char i = 0; i < inventoryLimit; i++) {
-		slots[i] = ItemStack();
-	}
-}
-
 Inventory::~Inventory(){
-
+	delete[] content;
 }
 
-void Inventory::clear(){
-	slots.clear();
+std::vector<ItemStack> Inventory::setSize(unsigned char size){
+	ItemStack* old = content;
+	content = new ItemStack[size];
+
+	for(int i = 0; i < Inventory::size && i < size; i++){
+		content[i] = old[i];
+	}
+	delete[] old;
 }
-
-std::vector<ItemStack>& Inventory::setLimit(const unsigned char limit){
-	std::map<unsigned char, ItemStack> old = slots;
-	
-	slots.clear();	// Reset the slots for new size
-	for (unsigned char i = 0; i < limit; i++) {
-		slots[i] = ItemStack();
-	}
-
-	// Transfer the old that's within the range
-	for (unsigned char i = 0; i < limit; i++) {
-		if (old[i].amount > 0) {
-			slots[i] = old[i];
-			old[i].amount = 0;
-		}
-	}
-	// Find space for the itemstacks that were out of range if the range shrunk
-	if (limit < inventoryLimit) {
-		for (unsigned char i = limit; i < inventoryLimit; i++) {
-			if (old[i].amount > 0) {
-				for (unsigned char j = 0; j < limit; j++) {
-					if (slots[j].amount == 0) {
-						slots[j] = old[i];
-						old[i].amount = 0;
-						j = limit; // conitnue? break?
-					}
-				}
-			}
-		}
-	}
-	// Creating a vector for what was left behind
-	std::vector<ItemStack> leftovers;
-	for (unsigned char i = 0; i < inventoryLimit; i++) {
-		if (old[i].amount > 0) {
-			leftovers.push_back(old[i]);
-		}
-	}
-	// set the new inventory limit
-	inventoryLimit = limit;
-
-	return leftovers;
-}
-
-unsigned char Inventory::getLimit(){
-	return inventoryLimit;
+unsigned char Inventory::getSize() const{
+	return size;
 }
 
 ItemStack& Inventory::put(ItemStack& is, unsigned char slot){
-	if (slots[slot].amount == 0 || compareItemStackType(slots[slot], is)){
-
-		combineItemStacks(slots[slot], is);
-
+	if(slot >= size){
+		return ItemStack();
+	}
+	if(is.amount > stackLimit(is.item.type)){
 		return is;
 	}
-	logger::warning("Item could not be placed, slot " + std::to_string(slot) + " already occupied");
+
+	if(content[slot].item.type != is.item.type){
+		if(content[slot].amount == 0){
+			content[slot].item.type = is.item.type;
+		}
+		else{
+			return is;
+		}
+	}
+
+	int total = content[slot].amount + is.amount;
+	int left = total - stackLimit(is.item.type);
+
+	left = left > 0 ? left : 0;
+	content[slot].amount = total - left;
+	is.amount = left;
+
+	return is;
+}
+ItemStack& Inventory::put(ItemStack& is){
+	for(size_t i = 0; i < size && is.amount > 0; i++){
+		put(is, unsigned char(i));
+	}
+
 	return is;
 }
 
-ItemStack& Inventory::put(ItemStack& is){
-	for (unsigned char i = 0; i < inventoryLimit; i++){
-		if (compareItemStackType(slots[i], is) || slots.count(i) == 0){
+ItemStack& Inventory::swap(ItemStack& is, unsigned char slot){
+	if(slot >= size)
+		return ItemStack();
+	if(is.amount > stackLimit(is.item.type)){
+		return is;
+	}
 
-			if (combineItemStacks(slots[i], is)) {
-				return is;
+	ItemStack r = content[slot];
+	content[slot] = is;
+
+	return r;
+}
+ItemStack& Inventory::take(unsigned char slot){
+	return swap(ItemStack(), slot);
+}
+
+bool Inventory::take(ItemStack is){
+	if(!has(is)){
+		return false;
+	}
+
+	for(size_t i = 0; i < size && is.amount > 0; i++){
+		if(content[i].item.type == is.item.type){
+			if(content[i].amount >= is.amount){
+				content[i].amount -= is.amount;
+				is.amount = 0;
+			}
+			else{
+				is.amount -= content[i].amount;
+				content[i].amount = 0;
 			}
 		}
 	}
-	logger::warning("All items could not be placed, inventory is full");
-	return is;
+
+	return true;
 }
 
-bool Inventory::take(ItemStack& is){
-	for (auto &itemStack : slots){
-		if (compareItemStacks(is, itemStack.second)){
+bool Inventory::has(ItemStack is) const{
+	int total = 0;
 
-			itemStack.second.amount = 0;	// is this really right?
-			return true;
+	for(size_t i = 0; i < size && total < is.amount; i++){
+		if(content[i].item.type == is.item.type){
+			total += content[i].amount;
 		}
 	}
-	logger::warning("Stack not found");
-	return false;
+
+	return total >= is.amount;
 }
 
-ItemStack& Inventory::take(unsigned char slot){
-	ItemStack detached;
-
-	detached.item.type = slots[slot].item.type;
-	detached.amount = slots[slot].amount;
-
-	slots[slot].amount = 0;
-
-	return detached;
-}
-
-bool Inventory::has(ItemStack& is){
-	unsigned char count;
-
-	for (auto &itemStack : slots){
-
-		if (compareItemStackType(is, itemStack.second)){
-			count++;
-		}
+void Inventory::clear(){
+	for(size_t i = 0; i < size; i++){
+		content[i].amount = 0;
 	}
-	return count >= is.amount;
 }

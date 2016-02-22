@@ -21,57 +21,65 @@ Game::~Game(){
 }
 
 void Game::run(){
-	sf::Clock fg;
+	sf::Clock clock;
 	c::initialize();
-	logger::timing("Constants initialized in " + to_string(fg.getElapsedTime().asSeconds()) + " seconds.");
-	fg.restart();
+	logger::timing("Constants initialized in " + to_string(clock.getElapsedTime().asSeconds()) + " seconds.");
+	clock.restart();
 	gi::initalize(window);
-	logger::timing("Graphics interface initialized in " + to_string(fg.getElapsedTime().asSeconds()) + " seconds.");
-	manager = new Manager();
-	manager->initialize(window);
-	logger::timing("Manager initialized in " + to_string(fg.getElapsedTime().asSeconds()) + " seconds.");
-	world = new World();
-	file = File().child("world.txt");
-	world->load(file, manager);
-	world->background = manager->spriteManager->getBackground(world->backgroundName);
+	gi::smoothCamera = true;
+	logger::timing("Graphics interface initialized in " + to_string(clock.getElapsedTime().asSeconds()) + " seconds.");
 
-	controller = new Controller();
-	controller->initialize(manager);
+	gi::renderWindow->setMouseCursorVisible(false);
 
-	player = new Player();
+	Level* level = NULL;
 
-	player->initialize(manager);
+	Time lastTime;
+	while(gi::startOfFrame()){
+		if(!managerInitialized){
+			gi::darken(1.0f);
+			gi::endOfFrame();
+			clock.restart();
+			manager = new Manager();
+			manager->initialize(window);
+			logger::timing("Manager initialized in " + to_string(clock.getElapsedTime().asSeconds()) + " seconds.");
+			controller = new Controller();
+			controller->initialize(manager);
+			managerInitialized = true;
+			continue;
+		}
+		if(level == NULL){
+			gi::darken(1.0f);
+			gi::endOfFrame();
+			clock.restart();
+			level = new Level(manager, controller);
+			level->begin();
+			logger::timing("Level initialized in " + to_string(clock.getElapsedTime().asSeconds()) + " seconds.");
+			clock.restart();
+		}
 
-	ProgressBar* progressbar = new ProgressBar();
-	progressbar->position = Vector(100, 100);
-	progressbar->size = Vector(500.0f, 100.0f);
-	progressbar->progress = 0.5f;
-	progressbar->bleft = manager->spriteManager->getSprite("Floortiles.Stone");
+		if(manager->inputManager->isPressed(Keyboard::Escape)){
+			window->close();
+		}
 
-	window->setFramerateLimit(60);
-	while (gi::startOfFrame()){
-		world->tick();
-		manager->tick(window, world->time(), world->dt());
+		Time time = clock.getElapsedTime();
+		float dt = (time - lastTime).asSeconds();
 
-		player->velocity = controller->movement() * (400.0f * (manager->inputManager->isPressed(Keyboard::LShift) ? 10.0f : 1.0f));
-		player->tick(world->time(), world->dt());
-		gi::cameraX = player->position.x;
-		gi::cameraY = player->position.y;
+		gi::collisionBoxes = manager->inputManager->isPressed(Keyboard::C);
+
+		manager->tick(window, time, dt);
 
 		window->clear();
 
-		world->render(player);
+		level->tick();
 
-		gi::draw(progressbar, world->time());
+		manager->menuManager->draw(time);
 
-		manager->menuManager->draw(world->time());
-
+		lastTime = time;
 		gi::endOfFrame();
 	}
+	delete level;
 	manager->finalize(window);
 	delete manager;
 	gi::finalize();
-	delete world;
 	delete controller;
-	delete player;
 }

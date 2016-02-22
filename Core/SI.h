@@ -1,19 +1,24 @@
-#include "SoundManager.h" 
-#include "MusicManager.h"
+#pragma once
 
-namespace si {
+#include "MusicManager.h"
+#include "SoundManager.h"
+
+namespace si{
 	extern SoundManager* soundManager;
 	extern MusicManager* musicManager;
 
-	// Initialize \ Finalize 
+	// Initialize \ Finalize
 	bool initalize(SoundManager*& sm, MusicManager*& mm);
 
 	bool finalize();
-	//Music 
+
+	//Music
 	unsigned long playMusic(const std::string& name);
 	unsigned long playMusic(const std::string& name, const bool& fadeIn, const bool& fadeOut, const bool& loop);
 	unsigned long playMusic(const std::string& category, const std::string& name, const bool& fadeIn, const bool& fadeOut, const bool& loop);
-	//Sound 
-	bool playSound(const std::string& name);
-	bool playSound(const std::string& category, const std::string& name);
+	void stopMusic(const unsigned long& id, const sf::Time& time, const bool& force);
+	//Sound
+	unsigned long playSound_(const std::string& category, const std::string& name, const bool& loop = false);
+	unsigned long playSound(const std::string& name, const bool& loop = false);
+	void stopSound(const unsigned long& id);
 }
